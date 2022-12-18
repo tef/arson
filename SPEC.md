@@ -98,7 +98,7 @@ Along with optional tags for fixed-width numerics:
  - Unsigned integers: `@u8`, `@u16`, `@u32`, `@u64`, `@u128` 
  - Floating point: `@f8`, `@f16`, `@f32`, `@f64`, `@f128` 
 
-# RSON objects
+# Standard RSON objects
 
 ## ARSON singletons (mandatory)
 
@@ -183,7 +183,9 @@ Note: Semantics of `NaN` keys, or collections containing them are implementation
  - parsers MAY support optional types but MUST support mandatory types in tagged form
  - parsers MAY reject unknown, or return a wrapped object 
 
-### ARSON C99 float strings (optional, recommended):
+# Optional ARSON types
+
+## ARSON C99 float strings (optional, recommended):
 
  - floats can be sent as tagged strings
  - string can contain decimal or hexidecimal format strings
@@ -193,7 +195,7 @@ Note: Semantics of `NaN` keys, or collections containing them are implementation
  - hex floats are C99 style, sprintf('%a') format
  - `<sign>0x<hex mantissa>p<sign><decimal exponent>` or `...1x...` for subnormals.
 
-### ARSON sets (optional, recommended):
+## ARSON sets (optional, recommended):
 
  - `@set [1,2,3]`
  - always a tagged list
@@ -202,7 +204,7 @@ Note: Semantics of `NaN` keys, or collections containing them are implementation
  - equality rules are same as other collections
  - sort order is only defined for keys of the same type
 
-### ARSON dicts (optional, recommended):
+## ARSON dicts (optional, recommended):
 
 This is for compatibility with hash tables without insertion order preservation.
 
@@ -214,7 +216,7 @@ This is for compatibility with hash tables without insertion order preservation.
  - sort order is only defined for keys of the same type
 
 
-### ARSON datetimes/periods (optional, recommended):
+## ARSON datetimes/periods (optional, recommended):
 
  - Datetimes are sent as tagged strings.
  - `@datetime "2017-11-22T23:32:07.100497Z"`
@@ -227,7 +229,7 @@ This is for compatibility with hash tables without insertion order preservation.
 Note: local timestamps, or other timezone formats are not covered by this spec. They
 may be added in future versions, likely via a different tag.
 
-### ARSON bytestrings (optional, recommended):
+## ARSON bytestrings (optional, recommended):
 
  - bytestrings are arrays of bytes without an encoding
  - parser SHOULD return a bytestring type if possible
@@ -237,11 +239,11 @@ may be added in future versions, likely via a different tag.
  - like strings, C0, C1 must be escaped.
  - but parsers MUST escape all non-ascii chracters too
 
-### ARSON complex numbers: (optional, recommended)
+## ARSON complex numbers: (optional, recommended)
 
  - `@complex [0,1]` (real, imaginary)
 
-### ARSON fixed width numerics (optional)
+## ARSON fixed width numerics (optional)
 
 Numeric literals can be tagged with a desired width.
 
@@ -259,13 +261,15 @@ ARSON currently defines the following fixed width numeric types:
 
 Tags with wider widths (256, 512, etc) are reserved for future use.
 
-### ARSON numeric arrays (optional)
+## ARSON numeric arrays (optional)
 
 An array of numeric literals can be tagged:
 
  - `@u8 [2,5,5]` is the same as `[@u8 2, @u8 5, @u8 5]`
  - `@i8 [-1,2,7]` is the same as `[@u8 -1, @u8 2, @u8 7]`
  - `@f32 [0.0, -1.0, 1.0]` is the same as `[@f32 0.0, @f32 -1.0, @f32 1.0]`
+
+# ARSON Tags
 
 ## Builtin/Reserved Tagged literals:
 
