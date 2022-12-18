@@ -60,8 +60,8 @@ Types outside of the basic arson types (int, float, string, object, list) are op
  - Byte Order Mark is treated as whitespace (along with `\x09`, `\x0a`, `\x0d`, `\x20`)
  - ARSON Document is any ARSON Object, (i.e `1` is a valid ARSON file).
  - Lists are `[]`, `[obj]`, `[obj,]`, `[obj, obj]` ... (trailing comma optional)
- - Records are `{ "key": value}`, keys must be unique, order must be preserved. 
- - Built-ins: `true`, `false`, `null`
+ - Records are `{"key": value}`, keys must be unique, order must be preserved. 
+ - Built-ins: `true`, `false`, `null` (all case sensitive)
  - `"unicode strings"` with escapes `\" \\ \/ \b \f \n \r \t \uFFFF \UFFFFFFFF`, no control codes unecaped, and `''` can be used instead of `""`.
  - int/float numbers (unary plus or minus, allowleading zeros, hex, octal, and binary integer liters)
  - Tagged literals: `@name [1,2,3]` for any other type of value.

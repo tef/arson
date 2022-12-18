@@ -81,6 +81,7 @@ This library supports serializing and deserializing the following types
 - `bytestring`, `bytearray` (but will return a bytearray)
 - `complex`
 
+The fixed width numeric types are currently unsupported (Sorry).
 
 ## ARSON in a Nutshell
 
@@ -89,7 +90,7 @@ This library supports serializing and deserializing the following types
  - Byte Order Mark is treated as whitespace (along with `\x09`, `\x0a`, `\x0d`, `\x20`)
  - ARSON Document is any ARSON Object, (i.e `1` is a valid ARSON file).
  - Lists are `[]`, `[obj]`, `[obj,]`, `[obj, obj]` ... (trailing comma optional)
- - Records are `{ "key": value}`, keys must be unique, order must be preserved. 
+ - Records are `{"key": value}`, keys must be unique, order must be preserved. 
  - Built-ins: `true`, `false`, `null`
  - `"unicode strings"` with escapes `\" \\ \/ \b \f \n \r \t \uFFFF \UFFFFFFFF`, no control codes unecaped, and `''` can be used instead of `""`.
  - int/float numbers (unary plus or minus, allowleading zeros, hex, octal, and binary integer liters)
