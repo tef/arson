@@ -11,7 +11,7 @@ For example:
     "hex": 0xFF,              #
     "binary": 0b1000_0001,     # Number literals can have _'s 
 
-    "lists": [1,2,3],         # Lists can have trailing commas
+    "lists": [1,2,3,],         # Lists can have trailing commas
 
     "strings": "At least \x61 \u0061 and \U00000061 work now",
     "or": 'a string',          # both "" and '' work.
