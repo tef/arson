@@ -82,7 +82,7 @@ print(codec.parse(codec.dump(Example(1))))
  - int/float numbers (unary plus or minus, allowleading zeros, hex, octal, and binary integer liters)
  - Tagged literals: `@name [1,2,3]` for any other type of value.
 
- Errors are fatal. A record with duplicate keys, or a string too long, or a number to big to represent MUST cause the parse to fail outright.
+ Errors are fatal. A record with duplicate keys, or a string too long, or a number too big to represent MUST cause the parse to fail outright.
 
 # ARSON Object Model and Syntax
 
