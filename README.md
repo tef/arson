@@ -9,12 +9,12 @@ For example:
     "numbers": +0123.0,       # Can have leading zeros
     "octal": 0o10,            # Oh, and comments too
     "hex": 0xFF,              #
-    "binary": 0b1000_0001,     # Number literals can have _'s 
+    "binary": 0b1000_0001,    # Number literals can have _'s 
 
     "lists": [1,2,3],         # Lists can have trailing commas
 
     "strings": "At least \x61 \u0061 and \U00000061 work now",
-    "or": 'a string',          # both "" and '' work.
+    "or": 'a string',         # both "" and '' work.
 
     "records": {
         "a": 1,               # Must have unique keys
