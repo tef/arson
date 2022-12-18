@@ -249,9 +249,15 @@ Numeric literals can be tagged with a desired width.
  - `@i8 -127`
  - `@f32 0.0`
 
-Additionally, fixed width floating points (i.e `@f8`) work like `@float`, and accept C99 hex-floats, along with `"NaN"` etc.
+Additionally, fixed width floating points (i.e `@f8`) work like `@float`, and accept C99 hex-floats, along with `"NaN"` etc. Implementations MUST error if the floats are too wide, but may choose to store a `f32` in a `f64`, for example.
 
-Implementations MUST error if the floats are too wide, but may choose to store a `f32` in a `f64`, for example.
+ARSON currently defines the following fixed width numeric types:
+
+ - Signed integers: @i8, @i16, @i32, @i64, @i128
+ - Unsigned integers: @u8, @u16, @u32, @u64, @u128
+ - Floating point: @f8, @f16, @f32, @f64, @f128
+
+Tags with wider widths (256, 512, etc) are reserved for future use.
 
 ### ARSON numeric arrays (optional)
 
