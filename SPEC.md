@@ -113,7 +113,7 @@ Along with optional tags for fixed-width numerics:
  - escape codepoints with `\xFF` or `\u00FF`, or `\UFFFFFFFF`  
  - `\b \n \r \t \f \\ \/ \"` plus `\'` too
  - no surrogate pairs allowed in strings, even when escaped
- - no unprintables/control chars (no tabs, del, c0, or c1)
+ - no unescaped unprintables/control chars (no raw tabs, no unescaped del, c0, or c1)
  - can be tagged `@string "test"` 
  - can be a tagged list `@string ["te", "st",]`
 
