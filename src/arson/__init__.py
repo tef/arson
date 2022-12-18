@@ -736,9 +736,10 @@ b"
             if obj != out:
                 raise AssertionError(
                     'failed second trip {} != {}'.format(obj, out))
+    return True
 
-    print('tests passed')
 
 if __name__ == '__main__':
-    run_tests(parse, dump)
+    if run_tests(parse, dump):
+        print('tests passed')
 
