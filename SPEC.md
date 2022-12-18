@@ -13,7 +13,7 @@ For example:
     "hex": 0xFF,              # Numbers don't have to be decimal
     "binary": 0b1000_0001,    # and numbers can have _'s too
 
-    "lists": [1,2,3],         # Lists can have trailing commas
+    "lists": [1,2,3,],         # Lists can have trailing commas
 
     "strings": "At least \x61 \u0061 and \U00000061 work now",
     "or": 'a string',         # Strings use either "" or ''.
