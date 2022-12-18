@@ -22,7 +22,7 @@ else:
 from datetime import datetime, timedelta, timezone
 
 CONTENT_TYPE="application/arson"
-__version__="0.0.3"
+__version__="0.0.4"
 
 reserved_tags = set("""
         bool int float complex
