@@ -43,9 +43,9 @@ flt_b10 = re.compile(r"\.[\d_]+")
 exp_b10 = re.compile(r"[eE](?:\+|-)?[\d+_]")
 
 string_dq = re.compile(
-    r'"(?:[^"\\\n\x00-\x1F\uD800-\uDFFF]|\\(?:[\'"\\/bfnrt]|\r?\n|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"')
+    r'"(?:[^"\\\n\x00-\x1F\x7F-\x9F\uD800-\uDFFF]|\\(?:[\'"\\/bfnrt]|\r?\n|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*"')
 string_sq = re.compile(
-    r"'(?:[^'\\\n\x00-\x1F\uD800-\uDFFF]|\\(?:[\"'\\/bfnrt]|\r?\n|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*'")
+    r"'(?:[^'\\\n\x00-\x1F\x7F-\x9F\uD800-\uDFFF]|\\(?:[\"'\\/bfnrt]|\r?\n|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}))*'")
 
 tag_name = re.compile(r"@(?!\d)\w+[ ]+")
 identifier = re.compile(r"(?!\d)[\w\.]+")

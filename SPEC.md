@@ -61,7 +61,9 @@ Along with some sugar atop JSON, ARSON supports tagging literals to represent ty
  - int/float numbers (unary plus or minus, allowleading zeros, hex, octal, and binary integer liters)
  - Tagged literals: `@name [1,2,3]` for any other type of value.
 
- Errors are fatal. A record with duplicate keys, or a string too long, or a number to big to represent MUST cause the parse to fail outright.
+Errors are fatal. A record with duplicate keys, or a string too long, or a number to big to represent MUST cause the parse to fail outright.
+
+Non-printable characters are defined as C0 and C1 blocks in unicode. This includes the tab character.
 
 # ARSON Object Model and Syntax
 
@@ -95,7 +97,7 @@ Along with optional tags for fixed-width numerics:
 
  - use ''s or ""s
  - json escapes, and `\xFF` (as `\u00FF`), `\UFFFFFFFF`  `\'` too
- - no surrogate pairs, no unprintables
+ - no surrogate pairs, no unprintables (no tabs, c0, or c1)
 
 ## ARSON numbers:
 
