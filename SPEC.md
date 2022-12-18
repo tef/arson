@@ -123,7 +123,7 @@ Along with optional tags for fixed-width numerics:
  - allows leading zero
  - allows underscores between digits (except leading digits)
  - binary ints start with `0b`: `0b1010`
- - octal ints start with `0c`: `0o777`
+ - octal ints start with `0o`: `0o777`
  - hex ints start with `0x`: `0xFF` 
  - limits on size are implementation defined, parsers MAY reject numbers that are too big to represent.
  - can be sent as tagged numeric literal `@int 123` (not a tagged string)
