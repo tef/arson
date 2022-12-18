@@ -34,7 +34,7 @@ Along with some sugar atop JSON, ARSON supports tagging literals to represent ty
 - `@base64 "...=="`, a base64 encoded bytestring
 - `@set`, `@dict`, `@complex`, `@bytestring`
 
-Types outside of the basic rson types (int, float, string, object, list) are optional parts of RSON, but every parser MUST be able to parse a file containing tagged literals.
+Types outside of the basic arson types (int, float, string, object, list) are optional parts of RSON, but every parser MUST be able to parse a file containing tagged literals.
 
 # ARSON vs JSON:
 
@@ -126,7 +126,7 @@ Along with optional tags for fixed-width numerics:
  - octal ints start with `0c`: `0o777`
  - hex ints start with `0x`: `0xFF` 
  - limits on size are implementation defined, parsers MAY reject numbers that are too big to represent.
- - can be sent as tagged literal `@int 123`
+ - can be sent as tagged numeric literal `@int 123` (not a tagged string)
 
 ## ARSON floating point numbers (mandatory):
 
@@ -173,10 +173,11 @@ Note: Semantics of `NaN` keys, or collections containing them are implementation
 
 ## ARSON tagged objects (mandatory):
 
- - contain a name and an untagged rson literal.
+ - contain a name and an untagged arson literal.
  - tagged objects do not nest, `@foo @bar {}` is an error.
- - whitespace between tag name and object is *mandatory*
- - tag name is any unicode letter/digit, `_`or a `.`
+ - space between tag name and object is *mandatory*, must not be tab or newline or bom
+ - tag name is any ascii letter followed by letters, digits or `_`
+ - parsers MAY support unicode tag names, but MUST support ascii ones
  - every type has a reserved tag name
  - `@int 1`, `@string "two"` are just `1` and `"two"`
  - parsers MAY support optional types but MUST support mandatory types in tagged form
@@ -327,4 +328,101 @@ _1
 
 # ARSON Grammar
 
+Note: This is still being drafted, if this conflicts with the spec above, the spec is right.
+
+```
+arson_whitespace <--- (' ' | '\t' | '\r' | '\n' | '\uFEFF')*
+
+newline <--- '\n' | end_of_file
+
+arson_comment <---
+    (arson_whitespace, '#', not(newline)*, newline)*,
+    arson_whitespace
+
+arson_document <---
+    arson_comment, arson_value, arson_comment
+
+arson_value <---
+    ( '@', arson_tag, ' '*, arson_literal) | arson_literal
+ 
+arson_tag <---
+    range('a-z', 'A-Z'),
+    (range('0-9', 'a-z', 'A-Z') | '_')*
+
+arson_literal <---
+    'true' | 'false' | 'null'
+    arson_number | arson_string |
+    arson_list | arson_ object
+
+arson_number <---
+    arson_hex_number | arson_octal_number |
+    arson_binary_number | arson_decimal_number |
+    arson_float_number
+
+arson_hex_number <---
+    ('+'|'-')?, '0x', range('0-9', 'A-F', 'a-f'),
+    range('0-9', 'A-F', 'a-f','_')*
+
+arson_octal_number <---
+    ('+'|'-')?, '0o', range('0-7'),
+    range('0-7','_')*
+
+arson_binary_number <--
+    ('+'|'-')?, '0b', range('0-1'),
+    range('0-1','_')*
+
+arson_decimal_number <---
+    ('+'|'-')?,  range('0-9'),
+    range('0-9','_')*
+
+arson_float_number <---
+    ('+'|'-')?,  range('0-9'), range('0-9','_')*,
+    ( ".", range('0-9','_')* )?,
+    ("e" | "E"), ('+'|'-')?, range('0-9','_') )?
+    
+arson_string <---
+    ( "'", arson_single_quoted_string "'") |
+    ( '"', arson_double_quoted_string, '"')
+
+arson_single_quoted_string <--
+    ( 
+        not(range("\x00-\x1f", "\\", "\'", "\uD800-\uDFFF")) |
+        arson_string_escape
+    )*
+    
+arson_double_quoted_string <--
+    ( 
+        not(range('\x00-\x1f', '\\', '\"', "\uD800-\uDFFF")) |
+        arson_string_escape
+    )*
+
+arson_string_escape <--
+    ('\\', ("\""|"\\"|"/"|"b"|"f"|"n"|"r"|"t"|"'"|"\n")) |
+    ('\\x', range("0-9", "a-f", "A-F"){2}) |
+    ('\\u', range("0-9", "a-f", "A-F"){4}) |
+    ('\\U', range("0-9", "a-f", "A-F"){8})
+
+arson_list <---
+    '[', 
+        arson_comment, 
+        ( arson_value, 
+            (arson_comment, ',', arson_comment, arson_value)*,
+            arson_comment,
+            (',', arson_comment)?
+        )?,
+    ']'
+
+arson_object <---
+    '{', 
+        arson_comment, 
+        ( arson_object_entry,
+            (arson_comment, ',', arson_comment, arson_object_entry)*,
+            arson_comment,
+            (',', arson_comment)?
+        )?,
+    '}'
+
+arson_object_entry <---
+    arson_string, arson_comment, ':', arson_comment, arson_value
+```
 
