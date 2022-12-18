@@ -69,6 +69,19 @@ codec = arson.Codec(object_to_tagged, tagged_to_object)
 print(codec.parse(codec.dump(Example(1))))
 ```
 
+## Supported Datatypes
+
+This library supports serializing and deserializing the following types
+
+- `str`, `int`, `bool`
+- `float` (including Infinity and Nan)
+- `list`, `tuple` (but will always return a list)
+- `dict`, `set`, `OrderedDict` (but will use dicts on 3.7+)
+- `datetime`, `timedelta` (but will convert times to UTC)
+- `bytestring`, `bytearray` (but will return a bytearray)
+- `complex`
+
+
 ## ARSON in a Nutshell
 
  - File MUST be utf-8, not cesu-8/utf-16/utf-32, without surrogate pairs.
@@ -84,7 +97,7 @@ print(codec.parse(codec.dump(Example(1))))
 
  Errors are fatal. A record with duplicate keys, or a string too long, or a number to big to represent MUST cause the parse to fail outright.
 
-# ARSON Object Model and Syntax
+## ARSON Object Model and Syntax
 
 ARSON has the following types of literals:
 

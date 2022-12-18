@@ -22,6 +22,7 @@ else:
 from datetime import datetime, timedelta, timezone
 
 CONTENT_TYPE="application/arson"
+__version__="0.0.3"
 
 reserved_tags = set("""
         bool int float complex
@@ -582,7 +583,7 @@ class Codec:
                 buf.write(": ")
                 self.dump_arson(v, buf, transform)
             buf.write('}')
-        elif isinstance(obj, dict):
+        elif isinstance(obj, dict): # if dict is pre 3.7, then no order preserving
             buf.write('@dict {')
             first = True
             for k in sorted(obj.keys()):
