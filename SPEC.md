@@ -112,7 +112,7 @@ Along with optional tags for fixed-width numerics:
  - use either ''s or ""s
  - escape codepoints with `\xFF` or `\u00FF`, or `\UFFFFFFFF`  
  - `\b \n \r \t \f \\ \/ \"` plus `\'` too
- - no surrogate pairs allowed in strings
+ - no surrogate pairs allowed in strings, even when escaped
  - no unprintables/control chars (no tabs, del, c0, or c1)
  - can be tagged `@string "test"` 
  - can be a tagged list `@string ["te", "st",]`
@@ -231,11 +231,11 @@ may be added in future versions, likely via a different tag.
 
  - bytestrings are arrays of bytes without an encoding
  - parser SHOULD return a bytestring type if possible
- - `@bytestring "....\xff"` 
+ - parsers MAY encode bytestrings using base64 `@base64 "...=="`
+ - parsers MUST accept tagged strings too: `@bytestring "....\xff"` 
  - same escape as strings, but can't have `\u` `\U` escapes > 0xFF
  - like strings, C0, C1 must be escaped.
- - parsers SHOULD escape all non-ascii chracters too
- - parsers MAY encode bytestrings using base64 `@base64 "...=="`
+ - but parsers MUST escape all non-ascii chracters too
 
 ### ARSON complex numbers: (optional, recommended)
 
