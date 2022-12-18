@@ -2,9 +2,11 @@
 
 ARSON is JSON, with a little bit of sugar: Comments, Commas, and Tags.
 
-This is version 1 of the specification, dated 2022-12-18.
+> This is version 1 of the specification, dated 2022-12-18. This specification
+is still being drafted, but is pretty much feature complete. Please contact
+us if you're implementing a library and find something unclear.
 
-For example:
+A full example of ARSON:
 
 ```
 {
@@ -32,6 +34,9 @@ Along with some sugar atop JSON, ARSON supports tagging literals to represent ty
 - `@base64 "...=="`, a base64 encoded bytestring
 - `@set`, `@dict`, `@complex`, `@bytestring`
 
+Types outside of the basic rson types (int, float, string, object, list) are optional parts of RSON, but every parser MUST be able to parse a file containing tagged literals.
+
+# ARSON vs JSON:
 
 ## JSON in a nutshell:
 
@@ -63,7 +68,7 @@ Along with some sugar atop JSON, ARSON supports tagging literals to represent ty
 
 Errors are fatal. A record with duplicate keys, or a string too long, or a number to big to represent MUST cause the parse to fail outright.
 
-Non-printable characters are defined as C0 and C1 blocks in unicode. This includes the tab character.
+Non-printable characters (or Control Codes) are defined as C0 and C1 blocks in unicode. This includes the tab character.
 
 # ARSON Object Model and Syntax
 
@@ -74,7 +79,7 @@ ARSON has the following types of literals:
  - Strings (using single or double quotes)
  - Lists
  - Records (a JSON object with ordering and without duplicate keys)
- - Tagged Literal
+ - Tagged Literals
 
 ARSON has a number of built-in tags:
  - `@object`, `@bool`, `@int`, `@float`, `@string`, `@list`, `@record`
@@ -93,70 +98,110 @@ Along with optional tags for fixed-width numerics:
  - Unsigned integers: `@u8`, `@u16`, `@u32`, `@u64`, `@u128` 
  - Floating point: `@f8`, `@f16`, `@f32`, `@f64`, `@f128` 
 
-## ARSON strings: 
+# RSON objects
 
- - use ''s or ""s
- - json escapes, and `\xFF` (as `\u00FF`), `\UFFFFFFFF`  `\'` too
- - no surrogate pairs, no unprintables (no tabs, c0, or c1)
+## ARSON singletons (mandatory)
 
-## ARSON numbers:
+- `true`, `false`, `null`
+- names are case sensitive and lowercase
+- true/false can be tagged `@bool true`
+- true, false, null can be tagged `@object`
 
- - allow unary minus, plus
- - allow leading zero
- - allow underscores (except leading digits)
- - binary ints: `0b1010`
- - octal ints `0o777`
- - hex ints: `0xFF` 
- - floating point: `1.123e-10` `-0.0` `+0.0` 
+## ARSON strings (mandatory): 
+
+ - use either ''s or ""s
+ - escape codepoints with `\xFF` or `\u00FF`, or `\UFFFFFFFF`  
+ - `\b \n \r \t \f \\ \/ \"` plus `\'` too
+ - no surrogate pairs allowed in strings
+ - no unprintables/control chars (no tabs, del, c0, or c1)
+ - can be tagged `@string "test"` 
+ - can be a tagged list `@string ["te", "st",]`
+
+## ARSON numbers (mandatory):
+
+ - allows unary minus, plus
+ - allows leading zero
+ - allows underscores between digits (except leading digits)
+ - binary ints start with `0b`: `0b1010`
+ - octal ints start with `0c`: `0o777`
+ - hex ints start with `0x`: `0xFF` 
  - limits on size are implementation defined, parsers MAY reject numbers that are too big to represent.
+ - can be sent as tagged literal `@int 123`
 
-Special floating point values `NaN`, `+Infinity` are represented using tagged literals, `@float "NaN"`, `@float "+Inf"`, `@float "-Inf"`
+## ARSON floating point numbers (mandatory):
 
-## ARSON lists:
+ - floating point: `1.123e-10` `-0.0` `+0.0`  
+ - allows unary minus, plus
+ - allows leading zero
+ - allows underscores between digits (except leading digits)
+ - limits on size are implementation defined, parsers MAY reject numbers that are too big to represent.
+ - parser must support special floating point values (nan, inf)
+ - special floating point types can only be sent as tagged trings (nan, inf)
+ - parser MUST ignore capitalization: NaN or nan,Inf,inf,+Inf,-Inf,+inf,-inf
+ - only hex floats and special values can be sent as tagged string `@float "nan"`
 
+## ARSON lists (mandatory):
+
+ - use `[` and `]`
  - allow trailing commas
-
-## ARSON records (aka, JSON objects):
-
- - no duplicate keys: parser MUST reject
- - insertion order must be preserved, but not considered in equality
- - allow trailing commas
- - implementations MUST support string keys
+ - lists of same size and items are same
+ - can be tagged `@list [1,2,3,]`
 
  Two keys are the same if
 
  - both strings and same codepoints (unnormalized)
- - same numerical value i.e `1` and `1.0` and `1.0e0` are the same key, `+0.0`, `-0.0` are the same key,
- - lists of same size and items are same
+ - same numerical value i.e `1` and `1.0` and `1.0e0` are the same key, `+0.0`, `-0.0` are the same key
+
+Note: Semantics of `NaN` keys, or collections containing them are implementation defined.
+
+## ARSON records (mandatory) 
+
+ - akin to JSON objects, uses `{` and `}`
+ - insertion order must be preserved
+ - no duplicate keys: parser MUST reject
+ - allow trailing commas
+ - implementations MUST support string keys
  - records of same size and key-value pairs are same, ignoring order
+ - can be tagged `@record {"a":1}`
+
+ Two keys are the same if
+
+ - both strings and same codepoints (unnormalized)
+ - same numerical value i.e `1` and `1.0` and `1.0e0` are the same key, `+0.0`, `-0.0` are the same key
  
 Note: Semantics of `NaN` keys, or collections containing them are implementation defined.
 
-## ARSON tagged objects:
+## ARSON tagged objects (mandatory):
 
- - `@foo.foo {"foo":1}` name is any unicode letter/digit, `_`or a `.`
- - `@int 1`, `@string "two"` are just `1` and `"two"`
- - do not nest,
+ - contain a name and an untagged rson literal.
+ - tagged objects do not nest, `@foo @bar {}` is an error.
  - whitespace between tag name and object is *mandatory*
+ - tag name is any unicode letter/digit, `_`or a `.`
  - every type has a reserved tag name
+ - `@int 1`, `@string "two"` are just `1` and `"two"`
+ - parsers MAY support optional types but MUST support mandatory types in tagged form
  - parsers MAY reject unknown, or return a wrapped object 
 
-### ARSON C99 float strings (optional):
+### ARSON C99 float strings (optional, recommended):
 
- - `@float "0x0p0"` C99 style, sprintf('%a') format
- - `@float "NaN"` or nan,Inf,inf,+Inf,-Inf,+inf,-inf
- -  no underscores allowed
+ - floats can be sent as tagged strings
+ - string can contain decimal or hexidecimal format strings
+ - no underscores allowed in hexadecimal floats
+ - special floating point types can only be sent as strings (nan, inf)
+ - parser MUST ignore capitalization: NaN or nan,Inf,inf,+Inf,-Inf,+inf,-inf
+ - hex floats are C99 style, sprintf('%a') format
+ - `<sign>0x<hex mantissa>p<sign><decimal exponent>` or `...1x...` for subnormals.
 
-`<sign>0x<hex mantissa>p<sign><decimal exponent>` or `...1x...` for subnormals.
-
-### ARSON sets (optional):
+### ARSON sets (optional, recommended):
 
  - `@set [1,2,3]`
  - always a tagged list
  - no duplicate items, same rules as records
  - ordering does not matter when comparing
+ - equality rules are same as other collections
+ - sort order is only defined for keys of the same type
 
-### ARSON dicts (optional):
+### ARSON dicts (optional, recommended):
 
 This is for compatibility with hash tables without insertion order preservation.
 
@@ -165,27 +210,33 @@ This is for compatibility with hash tables without insertion order preservation.
  - keys must all be the same type: number or string 
  - no duplicate items, same rules as records
  - a `@dict` is equal to a record if it has same keys, ignoring order.
+ - sort order is only defined for keys of the same type
 
-sort order is only defined for keys of the same type
 
-### ARSON datetimes/periods (optional):
+### ARSON datetimes/periods (optional, recommended):
 
- - RFC 3339 format in UTC, (i.e 'Zulu time')
+ - Datetimes are sent as tagged strings.
  - `@datetime "2017-11-22T23:32:07.100497Z"`
+ - Periods are sent as tagged numbers.
  - `@duration 60` (in seconds, float or int)
- - UTC MUST be supported, using `Z` suffix
- - implementations should support subset of RFC 3339
+ - Datetimes are in RFC 3339 format in UTC, (i.e 'Zulu time')
+ - UTC MUST use `Z` suffix
+ - Implementations SHOULD convert times to UTC, or reject them outright.
 
-### ARSON bytestrings (optional):
+Note: local timestamps, or other timezone formats are not covered by this spec. They
+may be added in future versions, likely via a different tag.
 
+### ARSON bytestrings (optional, recommended):
+
+ - bytestrings are arrays of bytes without an encoding
+ - parser SHOULD return a bytestring type if possible
  - `@bytestring "....\xff"` 
- - `@base64 "...=="`
- - returns a bytestring if possible
- - can't have `\u` `\U` escapes > 0xFF
- - all non printable ascii characters MUST be escaped: `\xFF`
- - SHOULD escape all non-ascii chracters too
+ - same escape as strings, but can't have `\u` `\U` escapes > 0xFF
+ - like strings, C0, C1 must be escaped.
+ - parsers SHOULD escape all non-ascii chracters too
+ - parsers MAY encode bytestrings using base64 `@base64 "...=="`
 
-### ARSON complex numbers: (optional)
+### ARSON complex numbers: (optional, recommended)
 
  - `@complex [0,1]` (real, imaginary)
 
@@ -209,12 +260,12 @@ An array of numeric literals can be tagged:
  - `@i8 [-1,2,7]` is the same as `[@u8 -1, @u8 2, @u8 7]`
  - `@f32 [0.0, -1.0, 1.0]` is the same as `[@f32 0.0, @f32 -1.0, @f32 1.0]`
 
-### Builtin ARSON Tags:
+## Builtin/Reserved Tagged literals:
 
 Pass throughs (i.e `@foo bar` is `bar`):
 
- - `@object` on any 
- - `@bool` on true, or false
+ - `@object` on any literal
+ - `@bool` on true, or false (not strings)
  - `@int` on ints
  - `@float` on ints or floats
  - `@string` on strings
@@ -224,14 +275,14 @@ Pass throughs (i.e `@foo bar` is `bar`):
 Tags that transform the literal:
 
  - @float on strings (for C99 hex floats, including NaN, -Inf, +Inf)
- - @duration on numbers (seconds)
+ - @string on lists of strings (joins them into one string)
+ - @dict on records
+ - @duration on numbers (returns seconds)
  - @datetime on strings (utc timestamp)
  - @base64 on strings (into a bytesting)
  - @bytestring on strings (into a bytestring)
  - @set on lists 
  - @complex on lists
- - @string on lists of strings (joins them into one string)
- - @dict on records
  - @u8, @f8, @i8 on lists
 
 Reserved:
@@ -272,4 +323,8 @@ _1
 @object @object {}
 "\uD800\uDD01"
 ```
+
+
+# ARSON Grammar
+
 
