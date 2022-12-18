@@ -1,0 +1,23 @@
+[project]
+name = "arson"
+version = "0.0.1"
+authors = [
+  { name="tef", email="tef@printf.net" },
+]
+description = "A restructured object notation"
+readme = "README.md"
+requires-python = ">=3.6"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/tef/arson"
+"Bug Tracker" = "https://github.com/tef/arson/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
