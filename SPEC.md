@@ -2,7 +2,7 @@
 
 ARSON is JSON, with a little bit of sugar: Comments, Commas, and Tags.
 
-This is version 1 of the specification, dated 2022-12-10.
+This is version 1 of the specification, dated 2022-12-18.
 
 For example:
 
@@ -182,7 +182,8 @@ sort order is only defined for keys of the same type
  - `@base64 "...=="`
  - returns a bytestring if possible
  - can't have `\u` `\U` escapes > 0xFF
- - all non printable ascii characters must be escaped: `\xFF`
+ - all non printable ascii characters MUST be escaped: `\xFF`
+ - SHOULD escape all non-ascii chracters too
 
 ### ARSON complex numbers: (optional)
 
