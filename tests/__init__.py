@@ -1,4 +1,6 @@
 import os.path
 import sys
-PROJECT_ROOT = os.path.split(os.path.dirname(__file__))[0]
-sys.path.append(os.path.join(PROJECT_ROOT, "src"))
+FILENAME = os.path.normpath(__file__)
+PROJECT_ROOT = os.path.split(os.path.dirname(FILENAME))[0]
+MODULE_PATH = os.path.join(PROJECT_ROOT, "src")
+sys.path.append(MODULE_PATH)
