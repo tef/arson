@@ -109,20 +109,9 @@ ARSON has the following types of literals:
  - Records (a JSON object with ordering and without duplicate keys)
  - Tagged Literal
 
-ARSON has a number of built-in tags:
- - `@object`, `@bool`, `@int`, `@float`, `@string`, `@list`, `@record`
-
-As well as optional tags for other types:
-
+ARSON has a number of built-in tags that map reasonably well to python types:
  - `@bytestring`, or `@base64` for bytestrings
- - `@float "0x0p0"`, for C99 Hex Floating Point Literals
- - `@dict` for unordered key-value maps
  - `@set` for sets, `@complex` for complex numbers
- - `@datetime`, `@duration` for time as point or measurement.
+ - `@datetime`, `@duration` for datetimes and timedeltas.
 
-The ARSON spec reserves a few more optional tags for fixed-width numerics. The following
-are implemented in this library:
-
- - Signed integers: `@i8`, `@i16`, `@i32`, `@i64`, `@i128` 
- - Unsigned integers: `@u8`, `@u16`, `@u32`, `@u64`, `@u128` 
 
