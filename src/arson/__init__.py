@@ -278,6 +278,9 @@ class Codec:
                 out = complex(*out)
             elif name == 'string':
                 out = "".join(out)
+            elif name in reserved_tags:
+                raise ParserErr(
+                    buf, pos, "{} has no meaning for {}".format(repr(name), item))
             else:
                 out = self.tagged_to_object(name,  out)
 
@@ -400,6 +403,9 @@ class Codec:
                     else:
                         raise ParserErr(
                             buf, pos, "invalid C99 float literal: {}".format(out))
+                elif name in reserved_tags:
+                    raise ParserErr(
+                        buf, pos, "{} has no meaning for {}".format(repr(name), item))
                 else:
                     out = self.tagged_to_object(name,  out)
 
@@ -484,6 +490,9 @@ class Codec:
             elif name == 'float':
                 if not isintance(out, float):
                     out = float(out)
+            elif name in reserved_tags:
+                raise ParserErr(
+                    buf, pos, "{} has no meaning for {}".format(repr(name), item))
             else:
                 out = self.tagged_to_object(name, out)
 
