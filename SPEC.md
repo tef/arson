@@ -2,8 +2,8 @@
 
 ARSON is JSON, with a little bit of sugar: Comments, Commas, and Tags.
 
-> This is version 1 of the specification, dated 2022-12-19. This specification
-is still being drafted, but is pretty much feature complete. Please contact
+> This is a draft of version 1 of the specification, dated$ 2022-12-19. This specification
+is still in progress, but is pretty much feature complete. Please contact
 us if you're implementing a library and find something unclear.
 
 A full example of ARSON:
@@ -243,7 +243,7 @@ may be added in future versions, likely via a different tag.
 
  - `@complex [0,1]` (real, imaginary)
 
-## ARSON fixed width numerics (optional)
+## ARSON fixed width numerics (optional, reserved)
 
 ARSON currently defines the following fixed width numeric types:
 
@@ -280,6 +280,8 @@ These will also accept a string containing a C99 Hex Float or a special float
 value.
 
 Unfortunately, floats of small width (8, 16) are not rigorously defined, and floats of large widths (128) are not well supported. Therefore, implementations SHOULD error if the floats are too wide, but may choose to store a `f32` in a `f64`, for example.
+
+Once again, the primary use of these tags is for binary formats.
 
 # ARSON Tags
 
