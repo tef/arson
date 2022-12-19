@@ -429,7 +429,12 @@ class Codec:
 
         elif peek in "-+0123456789":
             if name in reserved_tags:
-                if name not in ('object', 'int', 'float', 'duration'):
+                if name not in (
+                        'object', 'int', 'float', 'duration',
+                        'u8', 'u16', 'u32', 'u64', 'u128',
+                        'i8', 'i16', 'i32', 'i64', 'i128',
+                        'f8', 'f16', 'f32', 'f64', 'f128',
+                    ):
                     raise ParserErr(
                         buf, pos, "{} can't be used on numbers".format(name))
 
@@ -502,8 +507,20 @@ class Codec:
                     raise ParserErr(
                         buf, pos, "Can't tag floating point with @int")
             elif name == 'float':
-                if not isintance(out, float):
+                if not isinstance(out, float):
                     out = float(out)
+            elif name in ('u8', 'u16', 'u32', 'u64', 'u128',):
+                if not isinstance(out, int) or out <= 0:
+                    raise ParserErr(buf, pos, "Expecing a positive int")
+            elif name in ('i8', 'i16', 'i32', 'i64', 'i128',):
+                if not isinstance(out, int):
+                    raise ParserErr(buf, pos, "Expecing an int")
+            elif name in ('f8', 'f16', 'f32', 'f64', 'f128',):
+                if isinstance(out, int):
+                    out = float(out)
+                if not isinstance(out, float):
+                    raise ParserErr(buf, pos, "Expecing a float")
+
             elif name in reserved_tags:
                 raise ParserErr(
                     buf, pos, "{} has no meaning for {}".format(repr(name), item))
