@@ -262,6 +262,9 @@ As well as allowing an array of numeric literals to be tagged:
 
 Tags with wider widths (256, 512, etc) are reserved for future use.
 
+Implementations MUST error if the number does not fit in the given width, and MAY
+choose to return a wider format than specified.
+
 Note: The use of this tag is intended for binary formats of ARSON.
 
 ## Floating point fixed width types (reserved)
@@ -291,6 +294,8 @@ Pass throughs (i.e `@foo bar` is `bar`):
  - `@string` on strings
  - `@list` on lists
  - `@record` on records
+ - `@u8`, `@i8` etc on ints
+ - `@f32` etc on floats
 
 Tags that transform the literal:
 
@@ -303,16 +308,21 @@ Tags that transform the literal:
  - @bytestring on strings (into a bytestring)
  - @set on lists 
  - @complex on lists
- - @u8, @f8, @i8 on lists
+ - @u8, @i8 etc on lists of ints
+ - `@f32` etc on lists of floats/strings
 
 Reserved:
 
  - `@unknown`
 
-Any other use of a builtin tag is an error and MUST be rejected.
+This is a placeholder tag to represent missing data. Implementations
+MUST reject this tag when parsing.
+
+Any other use of a builtin tag is an error and MUST be rejected. I.e a `@dict` cannot be used
+on strings, etc.
 
 Note: Even if an RSON parser does not support the optional types, it SHOULD reject
-invalid uses of the tags.
+invalid uses of these optional types.
 
 # ARSON Test Vectors
 
