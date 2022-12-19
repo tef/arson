@@ -46,7 +46,6 @@ allowed_tags_for_list = set("""
         complex string
         i8 i16 i32 i64 i128
         u8 u16 u32 u64 u128
-        f8 f16 f32 f64 f128
 """.split())
 
 allowed_tags_for_string = set("""
@@ -59,7 +58,6 @@ allowed_tags_for_number = set("""
         object int float duration
         i8 i16 i32 i64 i128
         u8 u16 u32 u64 u128
-        f8 f16 f32 f64 f128
 """.split())
 
 allowed_tags_for_bool = set("""
@@ -79,7 +77,7 @@ number_widths = {
     "i64": (-2**63, 2**63-1),
     "i128": (-2**127, 2**127-1),
 
-    "f8": None,
+    "f8": None,   # 'minifloat'
     "f16": None,  # half
     "f32": None,  # single
     "f64": None,  # double
@@ -346,8 +344,7 @@ class Codec:
                 if not all(isinstance(i, int) and i >= n_min and i <= n_max for i in out):
                     raise ParserErr(buf, pos, "Expecing an array of ints")
             elif name in ('f8', 'f16', 'f32', 'f64', 'f128',):
-                if not all(isinstance(i, float) for i in out):
-                    raise ParserErr(buf, pos, "Expecing an array of floats")
+                raise ParserErr(buf, pos, "Unsupported tag {}:".format(repr(name)))
             elif name in reserved_tags:
                 raise ParserErr(
                     buf, pos, "{} has no meaning for {}".format(repr(name), item))
@@ -567,11 +564,7 @@ class Codec:
                 if not isinstance(out, int):
                     raise ParserErr(buf, pos, "Expecing an int")
             elif name in ('f8', 'f16', 'f32', 'f64', 'f128',):
-                if isinstance(out, int):
-                    out = float(out)
-                if not isinstance(out, float):
-                    raise ParserErr(buf, pos, "Expecing a float")
-
+                raise ParserErr(buf, pos, "Unsupported tag {}:".format(repr(name)))
             elif name in reserved_tags:
                 raise ParserErr(
                     buf, pos, "{} has no meaning for {}".format(repr(name), item))
