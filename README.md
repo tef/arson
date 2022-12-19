@@ -120,9 +120,9 @@ As well as optional tags for other types:
  - `@set` for sets, `@complex` for complex numbers
  - `@datetime`, `@duration` for time as point or measurement.
 
-The ARSON spec reserves a few more optional tags for fixed-width numerics, which are currently not implemented in this library.
+The ARSON spec reserves a few more optional tags for fixed-width numerics. The following
+are implemented in this library:
 
  - Signed integers: `@i8`, `@i16`, `@i32`, `@i64`, `@i128` 
  - Unsigned integers: `@u8`, `@u16`, `@u32`, `@u64`, `@u128` 
- - Floating point: `@f8`, `@f16`, `@f32`, `@f64`, `@f128` 
 

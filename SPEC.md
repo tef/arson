@@ -2,7 +2,7 @@
 
 ARSON is JSON, with a little bit of sugar: Comments, Commas, and Tags.
 
-> This is version 1 of the specification, dated 2022-12-18. This specification
+> This is version 1 of the specification, dated 2022-12-19. This specification
 is still being drafted, but is pretty much feature complete. Please contact
 us if you're implementing a library and find something unclear.
 
@@ -245,29 +245,38 @@ may be added in future versions, likely via a different tag.
 
 ## ARSON fixed width numerics (optional)
 
-Numeric literals can be tagged with a desired width.
-
- - `@u8 255`
- - `@i8 -127`
- - `@f32 0.0`
-
-Additionally, fixed width floating points (i.e `@f8`) work like `@float`, and accept C99 hex-floats, along with `"NaN"` etc. Implementations MUST error if the floats are too wide, but may choose to store a `f32` in a `f64`, for example.
-
 ARSON currently defines the following fixed width numeric types:
 
  - Signed integers: @i8, @i16, @i32, @i64, @i128
  - Unsigned integers: @u8, @u16, @u32, @u64, @u128
- - Floating point: @f8, @f16, @f32, @f64, @f128
 
-Tags with wider widths (256, 512, etc) are reserved for future use.
+This allows numeric literals can be tagged with a desired width.
 
-## ARSON numeric arrays (optional)
+ - `@u8 255`
+ - `@i8 -127`
 
-An array of numeric literals can be tagged:
+As well as allowing an array of numeric literals to be tagged:
 
  - `@u8 [2,5,5]` is the same as `[@u8 2, @u8 5, @u8 5]`
  - `@i8 [-1,2,7]` is the same as `[@u8 -1, @u8 2, @u8 7]`
+
+Tags with wider widths (256, 512, etc) are reserved for future use.
+
+Note: The use of this tag is intended for binary formats of ARSON.
+
+## Floating point fixed width types (reserved)
+
+The tags @f8, @f16, @f32, @f64, @f128 are reserved for future use. These
+will operate much like the fixed width integers, on both literal numbers
+and lists of numbers.
+
+ - `@f32 0.0`
  - `@f32 [0.0, -1.0, 1.0]` is the same as `[@f32 0.0, @f32 -1.0, @f32 1.0]`
+
+These will also accept a string containing a C99 Hex Float or a special float
+value.
+
+Unfortunately, floats of small width (8, 16) are not rigorously defined, and floats of large widths (128) are not well supported. Therefore, implementations SHOULD error if the floats are too wide, but may choose to store a `f32` in a `f64`, for example.
 
 # ARSON Tags
 
@@ -301,6 +310,9 @@ Reserved:
  - `@unknown`
 
 Any other use of a builtin tag is an error and MUST be rejected.
+
+Note: Even if an RSON parser does not support the optional types, it SHOULD reject
+invalid uses of the tags.
 
 # ARSON Test Vectors
 
