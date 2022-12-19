@@ -231,7 +231,12 @@ class Codec:
 
         elif peek == '[':
             if name in reserved_tags:
-                if name not in ('object', 'list', 'set', 'complex', 'string',):
+                if name not in (
+                        'object', 'list', 'set', 'complex', 'string', 
+                        'u8', 'u16', 'u32', 'u64', 'u128',
+                        'i8', 'i16', 'i32', 'i64', 'i128',
+                        'f8', 'f16', 'f32', 'f64', 'f128',
+                    ):
                     raise ParserErr(
                         buf, pos, "{} can't be used on lists".format(name))
 
@@ -278,6 +283,15 @@ class Codec:
                 out = complex(*out)
             elif name == 'string':
                 out = "".join(out)
+            elif name in ('u8', 'u16', 'u32', 'u64', 'u128',):
+                if not all(isinstance(i, int) and i >= 0 for i in out):
+                    raise ParserErr(buf, pos, "Expecing an array of positive ints")
+            elif name in ('i8', 'i16', 'i32', 'i64', 'i128',):
+                if not all(isinstance(i, int) for i in out):
+                    raise ParserErr(buf, pos, "Expecing an array of ints")
+            elif name in ('f8', 'f16', 'f32', 'f64', 'f128',):
+                if not all(isinstance(i, float) for i in out):
+                    raise ParserErr(buf, pos, "Expecing an array of floats")
             elif name in reserved_tags:
                 raise ParserErr(
                     buf, pos, "{} has no meaning for {}".format(repr(name), item))
