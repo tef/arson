@@ -24,6 +24,8 @@ from datetime import datetime, timedelta, timezone
 CONTENT_TYPE="application/arson"
 __version__="0.0.4"
 
+# ARSON tags
+
 reserved_tags = set("""
         bool int float complex
         string bytestring base64
@@ -34,6 +36,57 @@ reserved_tags = set("""
         f8 f16 f32 f64 f128
         unknown
 """.split())
+
+allowed_tags_for_object = set("""
+        object record dict
+""".split())
+
+allowed_tags_for_list = set("""
+        object list set
+        complex string
+        i8 i16 i32 i64 i128
+        u8 u16 u32 u64 u128
+        f8 f16 f32 f64 f128
+""".split())
+
+allowed_tags_for_string = set("""
+        object string 
+        float datetime
+        bytestring base64
+""".split())
+
+allowed_tags_for_number = set("""
+        object int float duration
+        i8 i16 i32 i64 i128
+        u8 u16 u32 u64 u128
+        f8 f16 f32 f64 f128
+""".split())
+
+allowed_tags_for_bool = set("""
+        object bool
+""".split())
+
+number_widths = {
+    "u8": (0, 2**8-1),
+    "u16": (0, 2**16-1),
+    "u32": (0, 2**32-1),
+    "u64": (0, 2**64-1),
+    "u128": (0, 2**128-1),
+
+    "i8": (-2**7, 2**7-1),
+    "i16": (-2**15, 2**15-1),
+    "i32": (-2**31, 2**31-1),
+    "i64": (-2**63, 2**63-1),
+    "i128": (-2**127, 2**127-1),
+
+    "f8": None,
+    "f16": None,  # half
+    "f32": None,  # single
+    "f64": None,  # double
+    "f128": None, # quadruple 
+}
+
+# Regular Expressions for Tokenizing Input
 
 whitespace = re.compile(r"(?:\ |\t|\uFEFF|\r|\n|#[^\r\n]*(?:\r?\n|$))+")
 
@@ -171,7 +224,7 @@ class Codec:
 
         elif peek == '{':
             if name in reserved_tags:
-                if name not in ('object', 'record', 'dict'):
+                if name not in allowed_tags_for_object:
                     raise ParserErr(
                         buf, pos, "{} can't be used on objects".format(name))
 
@@ -223,20 +276,21 @@ class Codec:
                 elif peek != '}':
                     raise ParserErr(
                         buf, pos, "Expecting a ',', or a '}}' but found {}".format('{}',repr(peek)))
-            if name not in (None, 'object', 'record', 'dict'):
+            if name in (None, 'object', 'record', 'dict'):
+                pass
+            elif name in reserved_tags:
+                raise ParserErr(
+                    buf, pos, "{} has no meaning for {}".format(repr(name), item))
+            else:
                 out = self.tagged_to_object(name,  out)
+
             if transform is not None:
                 out = transform(out)
             return out, pos + 1
 
         elif peek == '[':
             if name in reserved_tags:
-                if name not in (
-                        'object', 'list', 'set', 'complex', 'string', 
-                        'u8', 'u16', 'u32', 'u64', 'u128',
-                        'i8', 'i16', 'i32', 'i64', 'i128',
-                        'f8', 'f16', 'f32', 'f64', 'f128',
-                    ):
+                if name not in allowed_tags_for_list:
                     raise ParserErr(
                         buf, pos, "{} can't be used on lists".format(name))
 
@@ -284,10 +338,12 @@ class Codec:
             elif name == 'string':
                 out = "".join(out)
             elif name in ('u8', 'u16', 'u32', 'u64', 'u128',):
-                if not all(isinstance(i, int) and i >= 0 for i in out):
+                n_min, n_max = number_widths[name]
+                if not all(isinstance(i, int) and i >= n_min and i <= n_max for i in out):
                     raise ParserErr(buf, pos, "Expecing an array of positive ints")
             elif name in ('i8', 'i16', 'i32', 'i64', 'i128',):
-                if not all(isinstance(i, int) for i in out):
+                n_min, n_max = number_widths[name]
+                if not all(isinstance(i, int) and i >= n_min and i <= n_max for i in out):
                     raise ParserErr(buf, pos, "Expecing an array of ints")
             elif name in ('f8', 'f16', 'f32', 'f64', 'f128',):
                 if not all(isinstance(i, float) for i in out):
@@ -304,7 +360,7 @@ class Codec:
 
         elif peek == "'" or peek == '"':
             if name in reserved_tags:
-                if name not in ('object', 'string', 'float', 'datetime', 'bytestring', 'base64'):
+                if name not in allowed_tags_for_string:
                     raise ParserErr(
                         buf, pos, "{} can't be used on strings".format(name))
 
@@ -429,12 +485,7 @@ class Codec:
 
         elif peek in "-+0123456789":
             if name in reserved_tags:
-                if name not in (
-                        'object', 'int', 'float', 'duration',
-                        'u8', 'u16', 'u32', 'u64', 'u128',
-                        'i8', 'i16', 'i32', 'i64', 'i128',
-                        'f8', 'f16', 'f32', 'f64', 'f128',
-                    ):
+                if name not in allowed_tags_for_number:
                     raise ParserErr(
                         buf, pos, "{} can't be used on numbers".format(name))
 
@@ -548,7 +599,7 @@ class Codec:
             if name is None or name == 'object':
                 pass
             elif name == 'bool':
-                if item not in ('true', 'false'):
+                if item not in allowed_tags_for_bool:
                     raise ParserErr(buf, pos, '@bool can only true or false')
             elif name in reserved_tags:
                 raise ParserErr(
